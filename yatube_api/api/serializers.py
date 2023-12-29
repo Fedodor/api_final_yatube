@@ -9,10 +9,6 @@ VALIDATION_ERROR_MESSAGE = 'Нельзя подписываться на сам�
 
 class PostSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
-    group = serializers.PrimaryKeyRelatedField(
-        required=False,
-        queryset=Group.objects.all()
-    )
 
     class Meta:
         fields = '__all__'
@@ -56,9 +52,7 @@ class FollowSerializer(serializers.ModelSerializer):
             ),
         )
 
-    def validate(self, data):
-        if data['following'] == self.context['request'].user:
-            raise serializers.ValidationError(
-                VALIDATION_ERROR_MESSAGE
-            )
-        return data
+    def validate_following(self, value):
+        if value == self.context['request'].user:
+            raise serializers.ValidationError(VALIDATION_ERROR_MESSAGE)
+        return value
